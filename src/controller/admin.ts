@@ -4,6 +4,8 @@ import z from "zod";
 import {
   createPost,
   createPostSlug,
+  deletePost,
+  getAllPosts,
   getPostBySlug,
   handleCover,
   updatePost,
@@ -94,6 +96,36 @@ export const editPost = async (req: ExtendedRequest, res: Response) => {
     }
   })
 };
-export const getPosts: RequestHandler = async (req, res) => {};
+export const getPosts = async (req:ExtendedRequest, res:Response) => {
+  let page=1;
+  if(req.query.page){
+    page=parseInt(req.query.page as string)
+    if(page <=0){
+      return res.json({error:"pagina inexistente"})
+    }
+  }
+  let posts=await getAllPosts(page)
+  const postsToReturn=posts.map(post=>({
+    id:post.id,
+    status:post.status,
+    title:post.title,
+    createdAt:post.createdAt,
+    cover:coverToUrl(post.cover),
+    authorName:post.users.name,
+    tags:post.tags,
+    slug:post.slug
+  }))
+  return res.json({posts:postsToReturn,page})
+};
 export const getPost: RequestHandler = async (req, res) => {};
-export const removePost: RequestHandler = async (req, res) => {};
+export const removePost = async (req:ExtendedRequest, res:Response) => {
+
+  const {slug}=req.params;
+  
+  const post = await getPostBySlug(slug)
+  if(!post){
+    return res.json({error:"Post inexistente"})
+  }
+  await deletePost(post.slug)
+  res.json({error:null})
+};

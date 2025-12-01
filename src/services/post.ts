@@ -65,3 +65,28 @@ export const updatePost=async(slug:string,data:Prisma.PostUpdateInput)=>{
         data
     })
 }
+
+
+export const deletePost=async(slug:string)=>{
+    return await prisma.post.delete({where:{slug}})
+}
+
+
+export const getAllPosts=async(page:number)=>{
+    if(page<=0) return []
+    const posts=await prisma.post.findMany({
+        include:{
+            users:{
+                select:{
+                    name:true
+                }
+            }
+        },
+        orderBy:{
+            createdAt:'desc'
+        },
+        take:5,
+        skip:(page-1)*5
+    })
+    return posts
+}
