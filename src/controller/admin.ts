@@ -117,7 +117,26 @@ export const getPosts = async (req:ExtendedRequest, res:Response) => {
   }))
   return res.json({posts:postsToReturn,page})
 };
-export const getPost: RequestHandler = async (req, res) => {};
+export const getPost = async (req:ExtendedRequest, res:Response) => {
+  const {slug}=req.params;
+
+  const post=await getPostBySlug(slug)
+  if(!post){
+    return res.json({error:'post inexistente '})
+  }
+  res.json({
+    post:{
+      id:post.id,
+      title:post.title,
+      createdAt:post.createdAt,
+      cover:coverToUrl(post.cover),
+      authorName:post.users.name,
+      tags:post.tags,
+      body:post.body,
+      slug:post.slug
+    }
+  })
+};
 export const removePost = async (req:ExtendedRequest, res:Response) => {
 
   const {slug}=req.params;

@@ -90,3 +90,54 @@ export const getAllPosts=async(page:number)=>{
     })
     return posts
 }
+export const getPublishedPosts=async(page:number)=>{
+    if(page<=0) return []
+    const posts=await prisma.post.findMany({
+        where:{status:'PUBLISHED'},
+        include:{
+            users:{
+                select:{
+                    name:true
+                }
+            }
+        },
+        orderBy:{
+            createdAt:'desc'
+        },
+        take:5,
+        skip:(page - 1) * 5
+    })
+    return posts
+}
+
+export const getPostWithSameTags=async(slug:string)=>{
+    const posts = await prisma.post.findUnique({where:{slug}})
+    if(!posts) return [];
+    const tags=posts.tags.split(',')
+    if(tags.length === 0 ){
+        return []
+    }
+    const post=await prisma.post.findMany({
+        where:{
+            status:'PUBLISHED',
+            slug:{not:slug},
+            OR:tags.map(term=>({
+                tags:{
+                    contains: term,
+                    mode:'insensitive'
+                }
+            }))
+        },include:{
+            users:{
+                select:{
+                    name:true
+                }
+            }
+        },
+        orderBy:{
+            createdAt:'desc'
+        },
+        take:10
+    })
+    return post
+}
