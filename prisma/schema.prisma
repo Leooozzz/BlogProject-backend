@@ -20,7 +20,7 @@ model Post {
   title     String
   body      String
   createdAt DateTime   @default(now())
-  updateAt  DateTime
+  updateAt DateTime?
   cover     String
   tags      String     @default("")
 

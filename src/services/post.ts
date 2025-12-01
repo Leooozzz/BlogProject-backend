@@ -6,7 +6,7 @@ import { prisma } from "../libs/prisma";
 export const handleCover=async(file:Express.Multer.File)=>{
     const allowed=['image/jpeg','image/jpg','image/png']
     if(allowed.includes(file.mimetype)){
-        const coverName= `${v4()}.jgp`;
+        const coverName = `${v4()}.jpg`;
         try{
         await fs.rename(
             file.path,
@@ -45,4 +45,15 @@ export const createPostSlug=async(title:string)=>{
     }
 
     return newSlug
+}
+type CreatePostProps ={
+    authorID:number,
+    slug:string,
+    title:string,
+    tags:string,
+    body:string,
+    cover:string
+}
+export const createPost=async(data:CreatePostProps)=>{
+    return await prisma.post.create({data})
 }
