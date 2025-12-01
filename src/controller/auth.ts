@@ -1,6 +1,6 @@
 import { RequestHandler } from "express"
 import z, { email, string } from "zod"
-import { createUser } from "../services/user"
+import { createUser, verifyUser } from "../services/user"
 import { createToken } from "../services/auth"
 
 export const singin:RequestHandler=async(req,res)=>{
@@ -13,6 +13,19 @@ export const singin:RequestHandler=async(req,res)=>{
         return res.json({error:data.error.flatten().fieldErrors})
     }
     const user=await verifyUser(data.data)
+    if(!user){
+      return res.json({error:"Acesso negado"})
+    }
+    const token=createToken(user)
+
+    res.json({
+        user:{
+            id:user.id,
+            name:user.name,
+            email:user.email
+        },
+        token
+    })
 
 }
 export const singup:RequestHandler=async(req,res)=>{
@@ -42,5 +55,5 @@ export const singup:RequestHandler=async(req,res)=>{
     })
 }
 export const validate:RequestHandler=async(req,res)=>{
-    
+        
 }

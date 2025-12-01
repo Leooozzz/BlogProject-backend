@@ -23,4 +23,29 @@ export const createUser = async ({
   });
 };
 
-export const verifyUser=async()
+type verifyUserProps={
+  email:string,
+  password:string
+}
+
+export const verifyUser=async({email,password}:verifyUserProps)=>{
+    const user =await prisma.user.findFirst({
+      where:{email}
+    })
+    if(!user) return false
+    if(!bcrypt.compareSync(password,user.password)) return false
+
+    return user
+}
+
+export const getUserById=async(id:number)=>{
+  return await prisma.user.findUnique({
+    where:{id},
+    select:{
+      id:true,
+      name:true,
+      email:true,
+      status:true
+    }
+  })
+}
